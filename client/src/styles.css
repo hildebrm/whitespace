@@ -1,0 +1,326 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: white; /* Soft off-white background */
+  color: #333; /* Dark gray for contrast */
+  margin: 0;
+  padding: 0;
+  padding-top: 10px;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;700&display=swap');
+
+.ql-editor {
+  width: 10in;
+  min-height: 11in;
+  padding: 1in;
+  margin: 1rem;
+  background-color: #fff;
+  justify-content: center;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.ql-container.ql-snow {
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ql-toolbar.ql-snow {
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed; 
+  top: 0;
+  left: 0; 
+  right: 0; 
+  background-color: #F7F6E9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Change from 8.5in to 100% for full width */
+  padding: 0.5rem 1rem;
+  margin: 0 auto; /* Changed from just auto to 0 auto */
+  z-index: 100; 
+}
+
+.ql-toolbar.ql-snow .toolbar-content {
+  width: 8.5in;
+  margin: 0 auto;
+}
+
+@page {
+  margin: 1in;
+}
+
+@media print {
+    body {
+        background: none;
+    }
+    .container .ql-editor {
+        width: 6.5in;
+        height: 9in;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        align-self: flex-start;
+    }
+    .container .ql-toolbar.ql-snow {
+        display: none;
+    }
+    header, footer {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+    }
+}
+
+.loadContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+  
+.loadContainer .loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .homeContainer {
+    max-width: 1000px; /* Similar to an A4 sheet width */
+    margin: 20px auto; 
+    padding: 20px; /* Mimics a document's padding */
+    background: #F7F6E9;
+    border-radius: 8px; /* Softens the edges slightly */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adds a light shadow for depth */
+  }
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #F7F6E9;
+  backdrop-filter: blur(8px); /* Subtle blur effect */
+  padding: 5px 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Minimal shadow */
+  top: 0;
+  width: 100%;
+}
+  
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c2c2c; /* Deep gray for readability */
+  text-decoration: none;
+}
+
+.headerLink {
+  text-decoration: none;
+}
+  
+.newDocImage {
+  width: 160px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: contain; /* Prevents distortion */
+  background: none; 
+}
+
+.createNewDocButton {
+  background: none; /* Remove default button background */
+  border: none; /* Remove button border */
+  padding: 0; /* Remove extra padding */
+  cursor: pointer; /* Make it clear it's clickable */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.createNewDocButton:hover {
+  transform: scale(1.1); /* Slight hover effect */
+}
+
+.noDocsNewDocButton {
+  background: linear-gradient(135deg, #4F46E5, #3B82F6);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.noDocsNewDocButton:hover {
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.noDocsNewDocButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.noDocsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;  /* Full viewport height */
+  text-align: center;  /* Center text */
+}
+
+.documentsListContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers children horizontally */
+  justify-content: center; /* Centers children vertically if needed */
+  text-align: center;
+  padding: 20px;
+}
+
+.documentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
+
+.documentItem {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.documentItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.docIcon {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin: 0 auto 10px;
+}
+
+.docTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+}
+
+.docDate {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.titleInput {
+  width: auto; /* Makes the input width fit content dynamically */
+  font-size: 1rem;
+  background-color: #f3f3f3;
+  border-radius: 3px;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease-in-out;
+  border: #666 solid .5px;
+}
+
+.writingImage {
+  width: 500px; /* Adjust size as needed */
+  height: auto; 
+}
+
+.documentLink {
+  display: inline-block; /* Keeps the link wrapping only the content */
+  text-decoration: none;
+  width: 100%; /* Make sure the link doesn't extend beyond the content */
+}
+  
+.welcomeText {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #b00020; /* Deep red for visibility */
+  padding: 10px;
+  margin: 10px auto;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.logo {
+  height: 100px; 
+  width: auto; 
+  object-fit: contain; 
+  margin-right: 8px; 
+  display: block; 
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease-in-out; 
+}
+
+.editor-container {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.prediction-indicator {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  background-color: #f8f9fa;
+  padding: 5px 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #555;
+}
+
+.editor-hint {
+  margin-top: 10px;
+  text-align: center;
+  color: #777;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap');
+
+.ql-editor [data-user-suggestion="true"] {
+  color: #aaaaaa !important;
+  background-color: #f8f9fa;
+  font-family: 'Shadows Into Light', cursive;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1), 
+          0px 0px 5px rgba(255, 255, 255, 0.6);
+}
