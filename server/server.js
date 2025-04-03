@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const Document = require("./Document");
@@ -8,6 +10,8 @@ const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 mongoose.connect("mongodb://localhost/white-space", {
 })
@@ -20,6 +24,69 @@ app.get('/api/documents', async (req, res) => {
         res.json(documents);
     } catch (error) {
         console.error("Error fetching documents:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+app.post('/api/predict', async (req, res) => {
+    try {
+        const { text } = req.body;
+        
+        if (!text || text.trim().length === 0) {
+            return res.status(400).json({ error: 'Text is required' });
+        }
+        
+        if (!OPENAI_API_KEY) {
+            return res.status(500).json({ error: 'OpenAI API key not configured' });
+        }
+        
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o',
+                messages: [
+                    { role: "system", content: "You are an autocomplete assistant. Continue the user's text with a short, relevant suggestion." },
+                    { role: "user", content: text }
+                ],
+                max_tokens: 20,
+                temperature: 0.7,
+                stop: ['\n'],
+                n: 1
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'Failed to get prediction');
+        }
+        
+        const data = await response.json();
+        const prediction = data.choices[0].message.content.trim() || '';
+        
+        return res.json({ prediction });
+    } catch (error) {
+        console.error('Prediction error:', error.message);
+        return res.status(500).json({ error: 'Failed to generate prediction' });
+    }
+});
+
+app.put('/api/documents/:id/title', async (req, res) => {
+    try {
+        const { title } = req.body;
+
+        const updatedDocument = await Document.findByIdAndUpdate(
+            req.params.id,
+            { title: title || "Untitled Document" }, // Defaults to "Untitled Document" if no title is provided
+            { new: true }
+        );
+
+        res.json(updatedDocument);
+    } catch (error) {
+        console.error("Error updating document title:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });
@@ -75,20 +142,3 @@ async function findOrCreateDocument(id) {
 
     return await Document.create({ _id: id, data: defaultData });
 }
-
-app.put('/api/documents/:id/title', async (req, res) => {
-    try {
-        const { title } = req.body;
-
-        const updatedDocument = await Document.findByIdAndUpdate(
-            req.params.id,
-            { title: title || "Untitled Document" }, // Defaults to "Untitled Document" if no title is provided
-            { new: true }
-        );
-
-        res.json(updatedDocument);
-    } catch (error) {
-        console.error("Error updating document title:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-});
