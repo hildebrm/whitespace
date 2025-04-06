@@ -112,7 +112,7 @@ app.put('/api/documents/:id/title', async (req, res) => {
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 const io = require("socket.io")(server, {
