@@ -28,7 +28,7 @@ export default function TextEditor() {
     const customLinkRef = useRef(null)
 
     useEffect(() => {
-        const s = io()
+        const s = io("https://whitespace-je8t.onrender.com")
         setSocket(s)
 
         return () => {
