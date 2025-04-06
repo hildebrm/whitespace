@@ -4,15 +4,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Document = require("./Document");
 const cors = require('cors');
-app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
-  methods: ["GET", "POST", "DELETE", "PUT"],
-}));
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+    methods: ["GET", "POST", "DELETE", "PUT"],
+  }));
 app.use(express.json());
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
