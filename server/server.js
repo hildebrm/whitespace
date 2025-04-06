@@ -6,15 +6,20 @@ const Document = require("./Document");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const RENDER_URL = process.env.RENDER_URL || "http://localhost:3001";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/white-space";
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:3000";
 
-mongoose.connect("mongodb://localhost/white-space", {
-})
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -112,7 +117,7 @@ const server = app.listen(PORT, () => {
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: CLIENT_ORIGIN,
     methods: ["GET", "POST"],
     credentials: true,
   },

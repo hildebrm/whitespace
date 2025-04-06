@@ -28,7 +28,7 @@ export default function TextEditor() {
     const customLinkRef = useRef(null)
 
     useEffect(() => {
-        const s = io("http://localhost:3001")
+        const s = io("https://whitespace-je8t.onrender.com")
         setSocket(s)
 
         return () => {
@@ -155,7 +155,7 @@ export default function TextEditor() {
     const fetchPrediction = async (text) => {
         try {
             setIsPredicting(true)
-            const response = await fetch("http://localhost:3001/api/predict", {
+            const response = await fetch("https://whitespace-je8t.onrender.com/api/predict", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ text }),

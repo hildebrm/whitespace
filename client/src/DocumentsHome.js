@@ -48,7 +48,7 @@ function DocumentsHome() {
 
   const saveTitle = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/documents/${id}/title`, {
+      const response = await fetch(`https://whitespace-je8t.onrender.com/api/documents/${id}/title`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -108,7 +108,7 @@ function DocumentsHome() {
     e.stopPropagation();
 
     try {
-      const response = await fetch(`http://localhost:3001/api/documents/${id}`, {
+      const response = await fetch(`https://whitespace-je8t.onrender.com/api/documents/${id}`, {
         method: "DELETE",
       });
 
