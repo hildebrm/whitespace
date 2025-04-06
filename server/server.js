@@ -74,6 +74,21 @@ app.post('/api/predict', async (req, res) => {
     }
 });
 
+app.delete('/api/documents/:id', async (req, res) => {
+    try {
+        documentId = req.params.id;
+        const deletedDocument = await Document.findByIdAndDelete(documentId);
+        if (!deletedDocument) {
+            return res.status(404).json({ message: "Document not found" });
+        }
+
+        res.json({ message: "Document deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting document:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 app.put('/api/documents/:id/title', async (req, res) => {
     try {
         const { title } = req.body;
