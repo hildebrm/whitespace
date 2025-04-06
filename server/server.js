@@ -117,7 +117,7 @@ const server = app.listen(PORT, () => {
 
 const io = require("socket.io")(server, {
   cors: {
-    origin: CLIENT_ORIGIN,
+    origin: [CLIENT_ORIGIN],
     methods: ["GET", "POST"],
     credentials: true,
   },
