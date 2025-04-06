@@ -116,12 +116,19 @@ const server = app.listen(PORT, () => {
 });
 
 const io = require("socket.io")(server, {
-  cors: {
-    origin: [CLIENT_ORIGIN],
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
+    cors: {
+      origin: function(origin, callback) {
+        // Allow localhost and any vercel.app subdomain
+        if (!origin || origin === 'http://localhost:3000' || origin.endsWith('vercel.app')) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
 
 const defaultData = "";
 
