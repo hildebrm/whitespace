@@ -3,7 +3,11 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const Document = require("./Document");
-const cors = require("cors");
+const cors = require('cors');
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+  methods: ["GET", "POST", "DELETE", "PUT"],
+}));
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -115,19 +119,12 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-const io = require("socket.io")(server, {
+const io = require('socket.io')(server, {
     cors: {
-      origin: function(origin, callback) {
-        // Allow localhost and any vercel.app subdomain
-        if (!origin || origin === 'http://localhost:3000' || origin.endsWith('vercel.app')) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      },
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
+      origin: CLIENT_ORIGIN,
+      methods: ['GET', 'POST'],
+      credentials: true
+    }
   });
 
 const defaultData = "";
