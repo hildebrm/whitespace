@@ -5,9 +5,23 @@ const mongoose = require("mongoose");
 const Document = require("./models/Document");
 const cors = require('cors');
 
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+app.use(passport.initialize());
+
+require('./config/passport')(passport);
+
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:3000" ||  [/https:\/\/.*\.vercel\.app$/] || process.env.RENDER_URL,
