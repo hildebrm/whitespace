@@ -1,7 +1,9 @@
-import { set } from "mongoose";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { UserContext } from "../context/userContext";
+import { useNavigate } from "react-router-dom";
 
-const Profile = ({ user, setUser }) => {
+const Profile = () => {
+    const { user, setUser, logout } = useContext(UserContext);
     const [isEditing, setIsEditing] = useState(false);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -11,6 +13,7 @@ const Profile = ({ user, setUser }) => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [documents, setDocuments] = useState([]);
+    const navigate = useNavigate();
     
     useEffect(() => {
         if (user) {
@@ -19,7 +22,15 @@ const Profile = ({ user, setUser }) => {
 
             const fetchDocuments = async () => {
                 try {
-                    const response = await fetch(`https://whitespace-je8t.onrender.com/api/documents/${user._id}`);
+                    const response = await fetch(
+                      `https://whitespace-je8t.onrender.com/api/documents/user/${user.id}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${user.token}`
+                        }
+                      }
+                    );
+                    
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
@@ -48,6 +59,11 @@ const Profile = ({ user, setUser }) => {
         setError(null);
     }
 
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
@@ -62,14 +78,14 @@ const Profile = ({ user, setUser }) => {
             const updateData = {
                 username,
                 email
-            }
+            };
 
             if (newPassword) {
-                updateData.currentPassword = newPassword;
+                updateData.currentPassword = currentPassword;
                 updateData.newPassword = newPassword;
             }
 
-            const response = await fetch(`https://whitespace-je8t.onrender.com/api/users/${user._id}`, {
+            const response = await fetch(`https://whitespace-je8t.onrender.com/api/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,10 +96,15 @@ const Profile = ({ user, setUser }) => {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update profile');
+                throw new Error(errorData.message || 'Failed to update profile');
             }
 
-            setUser(response.data.user);
+            const updatedUser = await response.json();
+            setUser({
+                ...updatedUser,
+                token: user.token
+            });
+            
             setIsEditing(false);
             setCurrentPassword('');
             setNewPassword('');
@@ -94,16 +115,19 @@ const Profile = ({ user, setUser }) => {
             setError(error.message || 'Failed to update profile');
         }
     }
+
     if (!user) {
         return <div>Please log in to view your profile.</div>;
     }
+
     return (
         <div className="profileContainer">
             <h1>User Profile</h1>
             {error && <div className="error">{error}</div>}
             {success && <div className="success">{success}</div>}
+            
             {isEditing ? (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="profile-form">
                     <label>
                         Username:
                         <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -112,38 +136,69 @@ const Profile = ({ user, setUser }) => {
                         Email:
                         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </label>
-                    <label>
-                        Current Password:
-                        <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-                    </label>
-                    <label>
-                        New Password:
-                        <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                    </label>
-                    <label>
-                        Confirm New Password:
-                        <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                    </label>
-                    <button type="submit">Save Changes</button>
-                    <button type="button" onClick={handleCancelClick}>Cancel</button>
+                    
+                    {user.authType === 'local' && (
+                        <>
+                            <label>
+                                Current Password:
+                                <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+                            </label>
+                            <label>
+                                New Password:
+                                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                            </label>
+                            <label>
+                                Confirm New Password:
+                                <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                            </label>
+                        </>
+                    )}
+                    
+                    <div className="button-group">
+                        <button type="submit" className="save-button">Save Changes</button>
+                        <button type="button" onClick={handleCancelClick} className="cancel-button">Cancel</button>
+                    </div>
                 </form>
             ) : (
                 <div className="profileDetails">
-                    <p><strong>Username:</strong> {user.username}</p>
-                    <p><strong>Email:</strong> {user.email}</p>
-                    <button onClick={handleEditClick}>Edit Profile</button>
+                    <div className="profile-header">
+                        <img 
+                            src={user.profilePicture || "/resources/profiledefault.jpg"} 
+                            alt="Profile" 
+                            className="profile-image" 
+                        />
+                        <div className="profile-info">
+                            <p><strong>Username:</strong> {user.username}</p>
+                            <p><strong>Email:</strong> {user.email}</p>
+                            <p><strong>Account Type:</strong> {user.authType === 'google' ? 'Google' : 'Local'}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="profile-actions">
+                        <button onClick={handleEditClick} className="edit-button">Edit Profile</button>
+                        <button onClick={handleLogout} className="logout-button">Logout</button>
+                    </div>
                 </div>
             )}
+            
             {documents.length > 0 && (
                 <div className="documentsList">
                     <h2>Your Documents</h2>
-                    {documents.map(doc => (
-                        <div key={doc._id} className="documentItem">
-                            {doc.title}
-                        </div>
-                    ))}
+                    <div className="documents-grid">
+                        {documents.map(doc => (
+                            <a href={`/documents/${doc._id}`} key={doc._id} className="documentItem">
+                                <div className="doc-icon">📄</div>
+                                <div className="doc-title">{doc.title}</div>
+                                <div className="doc-date">
+                                    {new Date(doc.updatedAt).toLocaleDateString()}
+                                </div>
+                            </a>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
     );
 }
+
+export default Profile;

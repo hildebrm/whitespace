@@ -1,49 +1,17 @@
 import AppRoutes from "./AppRoutes"
-import { useEffect, useState } from "react"
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route
-} from "react-router-dom"
-import { v4 as uuidv4 } from 'uuid';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { UserProvider } from "./context/userContext";
 
 function App() {
-  const redirectUrl = `/documents/${uuidv4()}`;
-  const [documents, setDocuments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-    const createNewDocument = () => {
-      window.location.href = `/documents/${uuidv4()}`;
-    };
-
-  useEffect(() => {
-      const fetchDocuments = async () => {
-        try {
-          const response = await fetch("https://whitespace-je8t.onrender.com/api/documents");  
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          setDocuments(data);
-          setLoading(false);
-        } catch (err) {
-          console.error('Error fetching documents:', err);
-          setError('Failed to load documents. Please try again later.');
-          setLoading(false);
-        }
-      };
-  
-      fetchDocuments();
-    }, []);
-  
   return (
-    <Router>
+    <UserProvider>
+      <Router>
         <Routes>
           <Route path="/*" element={<AppRoutes />} />
         </Routes>
       </Router>
+    </UserProvider>
   )
 }
+
 export default App

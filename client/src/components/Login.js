@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { UserContext } from "../context/userContext";
 
-const Login = ({setUser}) => {
+const Login = () => {
+    const { setUser } = useContext(UserContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
@@ -22,12 +24,18 @@ const Login = ({setUser}) => {
                 body: JSON.stringify({ username, password }),
             });
 
-            localStorage.setItem("token", response.data.token);
-            setUser(response.data.user)
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Login failed");
+            }
+
+            const data = await response.json();
+            localStorage.setItem("token", data.token);
+            setUser(data.user);
             navigate("/documents");
         } catch (err) {
             console.error("Login error:", err);
-            setError("Invalid username or password.");
+            setError(err.message || "Invalid username or password.");
         } finally {
             setIsLoading(false);
         }

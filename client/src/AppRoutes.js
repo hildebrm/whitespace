@@ -1,14 +1,19 @@
 import TextEditor from "./components/TextEditor";
 import DocumentsHome from "./components/DocumentsHome";
-import { useEffect, useState } from "react";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import { useEffect, useState, useContext } from "react";
 import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import Profile from "./components/Profile";
+import { UserContext } from "./context/userContext";
 
 function AppRoutes() {
+  const { user } = useContext(UserContext);
   const redirectUrl = `/documents/${uuidv4()}`;
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState(null);
-  const location = useLocation(); // Now it works!
+  const location = useLocation();
 
   const createNewDocument = () => {
     window.location.href = `/documents/${uuidv4()}`;
@@ -42,13 +47,26 @@ function AppRoutes() {
           <Link to={"/documents"} className="headerLink">
             <img src="/resources/logo2.png" alt="logo" className="logo" />
           </Link>
-          {documents.length !== 0 ? (
-            <button onClick={createNewDocument} className="createNewDocButton">
-              <img src="/resources/newDoc.png" alt="new document" className="newDocImage" />
-            </button>
-          ) : (
-            <p className="welcomeText">Welcome to your workspace</p>
-          )}
+          <div className="nav-right">
+            {user ? (
+              <Link to="/profile" className="profile-link">
+                <img 
+                  src={user.profilePicture || "/resources/profiledefault.jpg"} 
+                  alt="Profile" 
+                  className="profile-image-small" 
+                />
+              </Link>
+            ) : (
+              <Link to="/login" className="login-link">Login</Link>
+            )}
+            {documents.length !== 0 ? (
+              <button onClick={createNewDocument} className="createNewDocButton">
+                <img src="/resources/newDoc.png" alt="new document" className="newDocImage" />
+              </button>
+            ) : (
+              <p className="welcomeText">Welcome to your workspace</p>
+            )}
+          </div>
         </nav>
       )}
 
@@ -56,8 +74,9 @@ function AppRoutes() {
         <Route path="/documents" element={<DocumentsHome />} />
         <Route path="/" element={<Navigate to={redirectUrl} replace />} />
         <Route path="/documents/:id" element={<TextEditor />} />
-        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/login" element={user ? <Navigate to="/documents" /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/documents" /> : <Register />} />
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
         <Route path="/auth-callback" element={<Navigate to="/" />} />
       </Routes>
     </>

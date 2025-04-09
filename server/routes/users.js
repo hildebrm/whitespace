@@ -1,4 +1,3 @@
-// routes/users.js
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -30,7 +29,6 @@ router.put(
 
       const { username, email, currentPassword, newPassword } = req.body;
 
-      // Check if username is taken
       if (username && username !== user.username) {
         const usernameExists = await User.findOne({ username });
         if (usernameExists) {
@@ -75,5 +73,18 @@ router.put(
     }
   }
 );
+
+// Get documents for current user
+router.get('/documents', auth, async (req, res) => {
+  try {
+    const documents = await Document.find({ userId: req.user.id })
+      .sort({ updatedAt: -1 });
+    
+    res.json(documents);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
 
 module.exports = router;

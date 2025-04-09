@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/userContext';
 
-const Register = ({ setUser }) => {
+const Register = () => {
+    const { setUser } = useContext(UserContext);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -30,13 +32,19 @@ const Register = ({ setUser }) => {
                 body: JSON.stringify({ username, email, password }),
             });
 
-            localStorage.setItem("token", response.data.token);
-            setUser(response.data.user)
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Registration failed");
+            }
+
+            const data = await response.json();
+            localStorage.setItem("token", data.token);
+            setUser(data.user);
             navigate("/documents");
         }
         catch (err) {
             console.error("Registration error:", err);
-            setError("Registration failed. Please try again.");
+            setError(err.message || "Registration failed. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -85,9 +93,8 @@ const Register = ({ setUser }) => {
                 </button>
             </form>
             <p>Already have an account? <Link to="/login">Login</Link></p>
-            <button onClick={handleGoogleLogin} className="googleButton">Login with Google</button>
+            <button onClick={handleGoogleLogin} className="googleLoginButton">Login with Google</button>
         </div>
-
     )
 }
 export default Register;

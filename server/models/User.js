@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 const bcrypt = require('bcrypt');
-const { validate } = require('./Document');
 
 const UserSchema = new Schema({
     username: {
@@ -42,9 +41,8 @@ const UserSchema = new Schema({
     },
     profilePicture: {
         type: String,
-        default: '../client/public/resources/profiledefault.jpg',
+        default: '/resources/profiledefault.jpg',
     },
-    documents: [Document.schema],
     createdAt: {
         type: Date,
         default: Date.now,
@@ -55,20 +53,21 @@ const UserSchema = new Schema({
     },
 });
 
+// Fix password pre-save hook
 UserSchema.pre('save', async function(next) {
     const user = this;
 
-    if (user.isModified('password') || !user.password) {
-        return next();
-    }
-
-    try {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
+    // Only hash password if it's modified or new AND authType is local
+    if ((user.isModified('password') || user.isNew) && user.authType === 'local' && user.password) {
+        try {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+            next();
+        } catch (error) {
+            next(error);
+        }
+    } else {
         next();
-    }
-    catch (error) {
-        next(error);
     }
 });
 
