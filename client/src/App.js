@@ -1,13 +1,9 @@
-import TextEditor from "./TextEditor"
-import DocumentsHome from "./DocumentsHome"
 import AppRoutes from "./AppRoutes"
 import { useEffect, useState } from "react"
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
-  Link
+  Route
 } from "react-router-dom"
 import { v4 as uuidv4 } from 'uuid';
 
