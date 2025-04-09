@@ -1,5 +1,5 @@
-import TextEditor from "./TextEditor";
-import DocumentsHome from "./DocumentsHome";
+import TextEditor from "./components/TextEditor";
+import DocumentsHome from "./components/DocumentsHome";
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -56,6 +56,9 @@ function AppRoutes() {
         <Route path="/documents" element={<DocumentsHome />} />
         <Route path="/" element={<Navigate to={redirectUrl} replace />} />
         <Route path="/documents/:id" element={<TextEditor />} />
+        <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+        <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+        <Route path="/auth-callback" element={<Navigate to="/" />} />
       </Routes>
     </>
   );
