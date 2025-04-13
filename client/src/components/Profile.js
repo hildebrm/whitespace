@@ -162,11 +162,6 @@ const Profile = () => {
             ) : (
                 <div className="profileDetails">
                     <div className="profile-header">
-                        <img 
-                            src={user.profilePicture || "/resources/profiledefault.jpg"} 
-                            alt="Profile" 
-                            className="profile-image" 
-                        />
                         <div className="profile-info">
                             <p><strong>Username:</strong> {user.username}</p>
                             <p><strong>Email:</strong> {user.email}</p>

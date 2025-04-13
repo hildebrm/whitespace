@@ -58,14 +58,8 @@ function AppRoutes() {
               </Link>
             ) : (
               <Link to="/login" className="login-link">Login</Link>
-            )}
-            {documents.length !== 0 ? (
-              <button onClick={createNewDocument} className="createNewDocButton">
-                <img src="/resources/newDoc.png" alt="new document" className="newDocImage" />
-              </button>
-            ) : (
+            )}              
               <p className="welcomeText">Welcome to your workspace</p>
-            )}
           </div>
         </nav>
       )}
