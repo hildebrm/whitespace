@@ -13,6 +13,8 @@ function DocumentsHome() {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
+
+        setLoading(true);
         const response = await fetch("https://whitespace-je8t.onrender.com/api/documents"); 
 
         if (!response.ok) {

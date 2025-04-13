@@ -15,7 +15,6 @@ const jwtOptions = {
 };
 
 module.exports = function(passport) {
-  // JWT Strategy for protected routes
   passport.use(
     new JwtStrategy(jwtOptions, async (jwt_payload, done) => {
       try {

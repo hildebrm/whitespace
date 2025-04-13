@@ -42,16 +42,16 @@ mongoose.connect(MONGODB_URI, {
   .then(() => console.log("MongoDB connected!"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-  app.get('/api/documents', async (req, res) => {
-    try {
-        const userId = req.user._id; // 
-        
-        const documents = await Document.find({ userId: userId }).sort({ createdAt: -1 });
-        res.json(documents);
-    } catch (error) {
-        console.error("Error fetching documents:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+app.get('/api/documents', passport.authenticate('jwt', { session: false }), async (req, res) => {
+try {
+    const userId = req.user._id;
+
+    const documents = await Document.find({ userId }).sort({ createdAt: -1 });
+    res.json(documents);
+} catch (error) {
+    console.error("Error fetching documents:", error);
+    res.status(500).json({ message: "Internal server error" });
+}
 });
 
 app.post('/api/predict', async (req, res) => {
@@ -192,6 +192,6 @@ async function findOrCreateDocument(id, userId = null) {
     return await Document.create({ 
         _id: id, 
         data: defaultData,
-        userId: userId || null
+        userId: req.user._id || userId
     });
 }
