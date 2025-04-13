@@ -8,7 +8,6 @@ const { check, validationResult } = require('express-validator');
 // Middleware to authenticate JWT token
 const auth = passport.authenticate('jwt', { session: false });
 
-// Update user profile
 router.put(
   '/profile',
   [
@@ -38,7 +37,6 @@ router.put(
         user.username = username;
       }
 
-      // Check if email is taken (only for local auth)
       if (email && email !== user.email && user.authType === 'local') {
         const emailExists = await User.findOne({ email });
         if (emailExists) {
@@ -47,7 +45,6 @@ router.put(
         user.email = email;
       }
 
-      // Handle password change (only for local auth)
       if (newPassword && user.authType === 'local') {
         // Verify current password
         const isMatch = await user.comparePassword(currentPassword);
@@ -55,7 +52,6 @@ router.put(
           return res.status(400).json({ message: 'Current password is incorrect' });
         }
 
-        // Set new password
         user.password = newPassword;
       }
 
@@ -75,7 +71,6 @@ router.put(
   }
 );
 
-// Get documents for current user
 router.get('/documents', auth, async (req, res) => {
   try {
     const documents = await Document.find({ userId: req.user.id })

@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/userContext';
 
+
 const Register = () => {
     const { setUser } = useContext(UserContext);
     const [username, setUsername] = useState('');
@@ -16,7 +17,6 @@ const Register = () => {
         e.preventDefault();
         setError('');
         
-        // Validate passwords match
         if (password !== confirmPassword) {
           return setError('Passwords do not match');
         }

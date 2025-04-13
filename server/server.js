@@ -3,13 +3,13 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require('cors');
-const passport = require('passport'); // Add passport import
+const passport = require('passport'); 
 const Document = require("./models/Document");
+const User = require("./models/User");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize passport before requiring route files
 app.use(passport.initialize());
 require('./config/passport')(passport);
 
@@ -24,11 +24,9 @@ app.use(cors({
     methods: ["GET", "POST", "DELETE", "PUT"],
 }));
 
-// Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 
-// Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 

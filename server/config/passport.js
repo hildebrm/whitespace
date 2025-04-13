@@ -14,7 +14,6 @@ const jwtOptions = {
   secretOrKey: JWT_SECRET
 };
 
-// Configure Passport strategies
 module.exports = function(passport) {
   // JWT Strategy for protected routes
   passport.use(
