@@ -597,3 +597,25 @@ body {
 .editTitleIcon:hover {
   cursor: pointer;
 }
+
+.profile-image-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%; /* Makes the image circular */
+  object-fit: cover; /* Ensures the image maintains its aspect ratio */
+  border: 2px solid #f0f0f0; /* Optional: adds a light border */
+}
+
+.login-link {
+  padding: 8px 16px;
+  background-color: #4285f4; /* You can change this to match your color scheme */
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.login-link:hover {
+  background-color: #3367d6; /* Slightly darker on hover */
+}
