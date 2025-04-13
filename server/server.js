@@ -2,32 +2,35 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const Document = require("./models/Document");
 const cors = require('cors');
-
-const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
-
+const passport = require('passport'); // Add passport import
+const Document = require("./models/Document");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Initialize passport before requiring route files
 app.use(passport.initialize());
-
 require('./config/passport')(passport);
 
+// Apply middleware before routes
+app.use(express.json());
+app.use(cors({
+    origin: [
+      process.env.CLIENT_ORIGIN || "http://localhost:3000",
+      process.env.RENDER_URL,
+      /https:\/\/.*\.vercel\.app$/
+    ],
+    methods: ["GET", "POST", "DELETE", "PUT"],
+}));
+
+// Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 
-
+// Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-
-app.use(cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000" ||  [/https:\/\/.*\.vercel\.app$/] || process.env.RENDER_URL,
-    methods: ["GET", "POST", "DELETE", "PUT"],
-  }));
-app.use(express.json());
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const RENDER_URL = process.env.RENDER_URL || "http://localhost:3001";
@@ -99,7 +102,7 @@ app.post('/api/predict', async (req, res) => {
 
 app.delete('/api/documents/:id', async (req, res) => {
     try {
-        documentId = req.params.id;
+        const documentId = req.params.id;
         const deletedDocument = await Document.findByIdAndDelete(documentId);
         if (!deletedDocument) {
             return res.status(404).json({ message: "Document not found" });
@@ -146,11 +149,11 @@ const defaultData = "";
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
 
-    socket.on("get-document", async (documentId) => {
+    socket.on("get-document", async (documentId, userId) => {
         if (!documentId) return socket.emit("error", "Invalid document ID");
 
         try {
-            const document = await findOrCreateDocument(documentId);
+            const document = await findOrCreateDocument(documentId, userId);
             socket.join(documentId);
             socket.emit("load-document", document.data);
         } catch (err) {
@@ -172,11 +175,23 @@ io.on("connection", (socket) => {
     });
 });
 
-async function findOrCreateDocument(id) {
+async function findOrCreateDocument(id, userId = null) {
     if (!id) throw new Error("Invalid document ID");
 
     let document = await Document.findById(id);
-    if (document) return document;
+    if (document) {
+        // If the document exists but doesn't have a userId, update it
+        if (userId && !document.userId) {
+            document.userId = userId;
+            await document.save();
+        }
+        return document;
+    }
 
-    return await Document.create({ _id: id, data: defaultData });
+    // Create a new document with userId if provided
+    return await Document.create({ 
+        _id: id, 
+        data: defaultData,
+        userId: userId || null
+    });
 }

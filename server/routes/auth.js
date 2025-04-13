@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const {check, validationResult} = require('express-validator');
 
-const JWT_SECRET = process.env.JWT_SECRET
+// Make sure JWT_SECRET is properly defined
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 const generateToken = (user) => {
     return jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, {
@@ -50,14 +51,12 @@ router.post('/register', [
                 email: user.email,
                 profilePicture: user.profilePicture,
             },
-
-        })
+        });
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ error: 'Server error' });
     }
-}
-);
+});
 
 router.post('/login', [
     check('username').notEmpty().withMessage('Username is required'),
@@ -102,8 +101,7 @@ router.post('/login', [
         console.error('Login error:', error);
         res.status(500).json({ error: 'Server error' });
     }
-}
-);
+});
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }),
     (req, res) => {
@@ -113,9 +111,10 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
     const token = generateToken(req.user);
-    res.redirect(`https://whitespace-je8t.onrender.com/?token=${token}`); 
-}
-);
+    // Make sure the redirect URL is an environment variable
+    const redirectURL = process.env.CLIENT_ORIGIN || 'https://whitespace-je8t.onrender.com';
+    res.redirect(`${redirectURL}/?token=${token}`);
+});
 
 router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
     res.json({
@@ -125,7 +124,6 @@ router.get('/profile', passport.authenticate('jwt', { session: false }), (req, r
         authType: req.user.authType,
         profilePicture: req.user.profilePicture,
     });
-}
-);
+});
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 
 const Document = new Schema({
     _id: {
@@ -12,6 +13,11 @@ const Document = new Schema({
     data: {
       type: Object,
       required: true
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: false // Optional for backward compatibility
     },
     createdAt: {
       type: Date,

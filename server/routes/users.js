@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Document = require('../models/Document'); // Add this import
 const passport = require('passport');
 const { check, validationResult } = require('express-validator');
 
