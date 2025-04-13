@@ -17,7 +17,7 @@ const Document = new Schema({
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: false // Optional for backward compatibility
+      required: false 
     },
     createdAt: {
       type: Date,

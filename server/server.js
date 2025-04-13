@@ -42,9 +42,11 @@ mongoose.connect(MONGODB_URI, {
   .then(() => console.log("MongoDB connected!"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-app.get('/api/documents', async (req, res) => {
+  app.get('/api/documents', async (req, res) => {
     try {
-        const documents = await Document.find().sort({ createdAt: -1 });
+        const userId = req.user._id; // 
+        
+        const documents = await Document.find({ userId: userId }).sort({ createdAt: -1 });
         res.json(documents);
     } catch (error) {
         console.error("Error fetching documents:", error);
